@@ -1,0 +1,22 @@
+{
+  "anvil_cost": 1,
+  "description": {
+    "translate": "enchantment.balanced_miner_vi.efficiency_vi"
+  },
+  "exclusive_set": "#balanced_miner_vi:exclusive_set/efficiency",
+  "max_cost": {
+    "base": 51,
+    "per_level_above_first": 0
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 41,
+    "per_level_above_first": 0
+  },
+  "primary_items": "#minecraft:pickaxes",
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:pickaxes",
+  "weight": 2
+}

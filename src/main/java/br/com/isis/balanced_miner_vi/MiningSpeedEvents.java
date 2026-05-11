@@ -30,6 +30,7 @@ public final class MiningSpeedEvents {
         Identifier.fromNamespaceAndPath(BalancedMinerVI.MODID, "mineable_standard")
     );
     private static final float EFFICIENCY_V_BONUS = 26.0F;
+    private static final float OBSIDIAN_EFFICIENCY_VI_BONUS = EFFICIENCY_V_BONUS * 15F;
     private static final float BALANCED_EFFICIENCY_VI_BONUS = 34.0F;
     private static final float STANDARD_MINEABLE_FAST_SPEED = 132.0F;
     private static final float MIN_SAFE_HARDNESS = 0.5F;
@@ -43,7 +44,7 @@ public final class MiningSpeedEvents {
         ItemStack tool = player.getMainHandItem();
         BlockState state = event.getState();
 
-        if (!tool.is(ItemTags.PICKAXES) || !state.is(MINEABLE_STANDARD) || !state.is(BlockTags.MINEABLE_WITH_PICKAXE)) {
+        if (!tool.is(ItemTags.PICKAXES) || !state.is(BlockTags.MINEABLE_WITH_PICKAXE)) {
             return;
         }
 
@@ -57,6 +58,15 @@ public final class MiningSpeedEvents {
             .lookupOrThrow(Registries.ENCHANTMENT)
             .getOrThrow(EFFICIENCY_VI);
         if (tool.getEnchantmentLevel(enchantment) <= 0) {
+            return;
+        }
+
+        if (state.is(Blocks.OBSIDIAN)) {
+            event.setNewSpeed(event.getNewSpeed() + OBSIDIAN_EFFICIENCY_VI_BONUS);
+            return;
+        }
+
+        if (!state.is(MINEABLE_STANDARD)) {
             return;
         }
 

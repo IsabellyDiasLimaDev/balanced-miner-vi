@@ -30,7 +30,8 @@ public final class MiningSpeedEvents {
         Identifier.fromNamespaceAndPath(BalancedMinerVI.MODID, "mineable_standard")
     );
     private static final float EFFICIENCY_V_BONUS = 26.0F;
-    private static final float OBSIDIAN_EFFICIENCY_VI_BONUS = EFFICIENCY_V_BONUS * 15F;
+    private static final int LEGACY_VANILLA_EFFICIENCY_VI_LEVEL = 6;
+    private static final float OBSIDIAN_EFFICIENCY_VI_BONUS = EFFICIENCY_V_BONUS * 1.5F;
     private static final float BALANCED_EFFICIENCY_VI_BONUS = 34.0F;
     private static final float STANDARD_MINEABLE_FAST_SPEED = 132.0F;
     private static final float MIN_SAFE_HARDNESS = 0.5F;
@@ -57,12 +58,20 @@ public final class MiningSpeedEvents {
         Holder<Enchantment> enchantment = level.registryAccess()
             .lookupOrThrow(Registries.ENCHANTMENT)
             .getOrThrow(EFFICIENCY_VI);
-        if (tool.getEnchantmentLevel(enchantment) <= 0) {
+        Holder<Enchantment> vanillaEfficiency = level.registryAccess()
+            .lookupOrThrow(Registries.ENCHANTMENT)
+            .getOrThrow(Enchantments.EFFICIENCY);
+        int vanillaEfficiencyLevel = tool.getEnchantmentLevel(vanillaEfficiency);
+        boolean hasBalancedEfficiencyVi = tool.getEnchantmentLevel(enchantment) > 0
+            || vanillaEfficiencyLevel >= LEGACY_VANILLA_EFFICIENCY_VI_LEVEL;
+
+        if (!hasBalancedEfficiencyVi) {
             return;
         }
 
+        float vanillaBonus = getEfficiencyBonus(vanillaEfficiencyLevel);
         if (state.is(Blocks.OBSIDIAN)) {
-            event.setNewSpeed(event.getNewSpeed() + OBSIDIAN_EFFICIENCY_VI_BONUS);
+            event.setNewSpeed(event.getNewSpeed() + Math.max(0.0F, OBSIDIAN_EFFICIENCY_VI_BONUS - vanillaBonus));
             return;
         }
 
@@ -70,10 +79,6 @@ public final class MiningSpeedEvents {
             return;
         }
 
-        Holder<Enchantment> vanillaEfficiency = level.registryAccess()
-            .lookupOrThrow(Registries.ENCHANTMENT)
-            .getOrThrow(Enchantments.EFFICIENCY);
-        float vanillaBonus = getEfficiencyBonus(tool.getEnchantmentLevel(vanillaEfficiency));
         float balancedBonus = Math.max(0.0F, BALANCED_EFFICIENCY_VI_BONUS - vanillaBonus);
         float balancedSpeed = event.getNewSpeed() + balancedBonus;
         balancedSpeed = Math.max(balancedSpeed, STANDARD_MINEABLE_FAST_SPEED);
